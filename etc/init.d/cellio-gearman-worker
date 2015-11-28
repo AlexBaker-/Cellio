@@ -1,0 +1,85 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          cellio-gearman-worker
+# Required-Start:    $local_fs $network $named $syslog gearman-job-server
+# Required-Stop:     $local_fs $network $named $syslog gearman-job-server
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Gearman worker for Cellio, a Twilio-based cell phone dump
+### END INIT INFO
+
+NAME=cellio-gmw
+DESC="Gearman worker for Cellio, a Twilio-based cell phone dump"
+PIDFILE="/var/run/${NAME}.pid"
+LOGFILE="/var/log/${NAME}.log"
+
+DAEMON="/usr/bin/php"
+DAEMON_OPTS="/PATH/TO/Cellio/gearman/worker.php"
+
+. /lib/lsb/init-functions
+
+test -x $DAEMON || exit 0
+
+set -e
+
+start() {
+  log_daemon_msg "Starting Cellio Gearman Worker" "cellio-gmw"
+  if start-stop-daemon \
+    --start \
+    --background \
+    --make-pidfile \
+    --pidfile ${PIDFILE} \
+    --exec ${DAEMON} ${DAEMON_OPTS}
+  then
+    log_end_msg 0
+  else
+    log_end_msg 1
+    log_warning_msg "Something went wrong..."
+    exit 1
+  fi
+}
+
+stop() {
+  log_daemon_msg "Stopping Cellio Gearman Worker" "cellio-gmw"
+  if start-stop-daemon \
+    --stop \
+    --oknodo \
+    --pidfile $PIDFILE
+  then
+    log_end_msg 0
+  else
+    log_end_msg 1
+    log_warning_msg "Something may have gone wrong..."
+    exit 1
+  fi
+}
+
+status() {
+  status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+}
+
+case "$1" in
+
+  start)
+    start
+  ;;
+
+  stop)
+    stop
+  ;;
+
+  status)
+    status
+  ;;
+
+  restart|force-reload)
+    stop
+    start
+  ;;
+
+  *)
+    echo "Usage: $0 {start|stop|restart|force-reload|status}"
+  ;;
+
+esac

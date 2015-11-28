@@ -12,15 +12,17 @@ The problem, though, is while Twilio offers a few hosted options (called [Twimle
 * [Twilio](https://www.twilio.com) - Obviously, none of this will work without a Twilio account and active phone number.
 
 * PHP - The main TwiML scripts are coded in PHP, because reasons.  The Gearman worker is, too, but this will eventually change (see TODO below).
-  * Modules: *curl*, *dom* (with *xml*), *json*, *pecl-gearman*
+  * Modules: *curl*, *dom* (with *xml*), *json*
 
-* [Gearman](http://gearman.org) - Asynchronous job handler.  I added this so the TwiML scripts could respond immediately to Twilio, but still queue jobs to fetch the call/text data (e.g. MMS attachments or voicemail MP3s).
-  * Debian Packages: *gearman-job-server*, *libgearman-client-perl*
+* [Gearman](http://gearman.org) (*Optional*) - Asynchronous job handler.  I added this so the TwiML scripts could respond immediately to Twilio, but still queue jobs to fetch the call/text data (e.g. MMS attachments or voicemail MP3s).
+  * Debian Packages: *gearman-job-server*, *libgearman-client-perl*, *pecl-gearman*
+  * This dependency is optional if you want the media files downloaded locally.  If not, the media files will be accessible only on Twilio's servers.
 
+* [Monit](https://mmonit.com/monit/) (*Optional*) - Process uptime and resource monitor.  Used to make sure the Gearman worker script stays active and doesn't eat memory/CPU like crazy.
 
 ## TODO
 
-* The Gearman worker should be coded in Perl, simply because [PHP is meant to die](https://www.bram.us/2013/11/11/php-is-meant-to-die/).  Right now it's in PHP for a proof-of-concept (since the libraries are super simple), but PHP leaks memory like a sieve.
+* The Gearman worker should be coded in Perl, simply because [PHP is meant to die](https://www.bram.us/2013/11/11/php-is-meant-to-die/).  Right now it's in PHP for a proof-of-concept (since the libraries are super simple), but PHP leaks memory like a sieve.  Thus far, though, it seems to be holding stable with memory consumption, so we'll see...
 
 * Add a MariaDB (MySQL) backend to store call and text data.
 

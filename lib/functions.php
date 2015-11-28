@@ -1,6 +1,5 @@
 <?php
-if (!defined('TWILIO')) die('Error: This file cannot be called directly.');
-
+if (!defined('CELLIO')) die('Error: This file cannot be called directly.');
 
 // Send email alert
 function send_email($to, $from, $subject, $body) {
@@ -42,7 +41,7 @@ function unparse_url($parsed_url, $user, $pass) {
 
 // MIME types supported by Twilio
 // Source: https://www.twilio.com/docs/api/rest/accepted-mime-types
-function mime_to_ext($mime) {
+function mime_to_ext($str, $ext_to_mime=false) {
   $mimes = array(
     'audio/basic' => 'au',
     'audio/L24' => 'l24',
@@ -81,7 +80,12 @@ function mime_to_ext($mime) {
     'text/calendar' => 'ics',
     'application/pdf' => 'pdf',
   );
-  return (array_key_exists($mime, $mimes) ? $mimes[$mime] : 'xxx');
+  if ($ext_to_mime) {
+    $key = array_search($str, $mimes);
+    return ($key ? $key : 'application/octet-stream');
+  } else {
+    return (array_key_exists($str, $mimes) ? $mimes[$str] : 'xxx');
+  }
 }
 
 
